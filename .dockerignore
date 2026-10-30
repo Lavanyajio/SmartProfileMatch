@@ -1,0 +1,12 @@
+.env
+.venv
+venv
+.git
+.idea
+__pycache__
+*.pyc
+.pytest_cache
+reports
+storage/*
+tests
+Jenkinsfile
