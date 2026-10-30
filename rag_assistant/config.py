@@ -39,7 +39,7 @@ class Settings:
     # Retrieval
     chunk_size: int = _int("CHUNK_SIZE", 800)
     chunk_overlap: int = _int("CHUNK_OVERLAP", 150)
-    top_k: int = _int("TOP_K", 5)
+    top_k: int = _int("TOP_K", 15)
     candidate_pool: int = _int("CANDIDATE_POOL", 20)
     rrf_k: int = _int("RRF_K", 60)
 
