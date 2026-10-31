@@ -114,9 +114,9 @@ def load_file(path: Path) -> List[Page]:
             )
 
         # OCR fallback for scanned/image PDFs
-        pytesseract.pytesseract.tesseract_cmd = (
-            r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-        )
+        # pytesseract.pytesseract.tesseract_cmd = (
+        #     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        # )
         if total_chars == 0:
 
             print(f"OCR fallback triggered for {path.name}")
