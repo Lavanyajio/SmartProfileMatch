@@ -37,11 +37,23 @@ def load_file(path: Path) -> List[Page]:
     suffix = path.suffix.lower()
     if suffix not in SUPPORTED_EXTENSIONS:
         raise ValueError(f"Unsupported file type: {suffix}. Use PDF, TXT or MD.")
+    # if suffix == ".pdf":
+    #     reader = PdfReader(str(path))
+    #     return [Page(page.extract_text() or "", path.name, i + 1) for i, page in enumerate(reader.pages)]
     if suffix == ".pdf":
         reader = PdfReader(str(path))
-        return [Page(page.extract_text() or "", path.name, i + 1) for i, page in enumerate(reader.pages)]
-    return [Page(path.read_text(encoding="utf-8", errors="ignore"), path.name, 1)]
 
+        pages = [
+            Page(page.extract_text() or "", path.name, i + 1)
+            for i, page in enumerate(reader.pages)
+        ]
+
+        if all(not p.text.strip() for p in pages):
+            raise ValueError(
+                "No readable text detected. PDF may be scanned."
+            )
+
+        return pages
 
 def _clean(text: str) -> str:
     text = text.replace("\x00", " ")

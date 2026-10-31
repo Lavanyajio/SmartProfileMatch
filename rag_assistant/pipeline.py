@@ -239,10 +239,24 @@ class RAGPipeline:
                     self.cfg.chunk_overlap
                 )
 
-                if not chunks:
+                # if not chunks:
+                #     report.append(
+                #         f"⚠️ {path.name}: no readable text detected"
+                #     )
+                pages = load_file(path)
+
+                chunks = chunk_pages(
+                    pages,
+                    self.cfg.chunk_size,
+                    self.cfg.chunk_overlap
+                )
+
+                if not any(page.text.strip() for page in pages):
                     report.append(
-                        f"⚠️ {path.name}: no readable text detected"
+                        f"⚠️ {path.name}: no readable text detected (possibly scanned PDF)"
                     )
+                    continue
+
                     continue
 
                 vectors = self.embedder.embed(
