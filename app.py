@@ -306,15 +306,15 @@ with tab1:
                         f"✅ Found {len(result.hits)} matching profile results"
                     )
 
-                sources = format_sources(result)
-
-                if sources:
-
-                    with st.expander(
-                        f"🎯 Matching Details ({len(result.hits)} Results)",
-                        expanded=False
-                    ):
-                        st.markdown(sources)
+                # sources = format_sources(result)
+                #
+                # if sources:
+                #
+                #     with st.expander(
+                #         f"🎯 Matching Details ({len(result.hits)} Results)",
+                #         expanded=False
+                #     ):
+                #         st.markdown(sources)
 
             st.session_state.messages.append(
                 {
