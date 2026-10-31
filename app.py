@@ -215,51 +215,59 @@ tab1, tab2, tab3 = st.tabs(
 # ---------------------------------------------------
 # SEARCH TAB
 # ---------------------------------------------------
-
 with tab1:
 
     st.subheader("💡 Popular Recruiter Searches")
+
+    button_prompt = None
 
     q1, q2, q3, q4 = st.columns(4)
 
     with q1:
         if st.button("👨‍💻 Data Engineer"):
-            # st.session_state.quick_query = \
-            #     "Find Data Engineers"
-            button_prompt  = "Find Data Engineers"
+            button_prompt = (
+                "Find the best matching Data Engineer candidates and rank them"
+            )
 
     with q2:
         if st.button("📊 Power BI"):
-            st.session_state.quick_query = \
-                "Find Power BI Developers"
+            button_prompt = (
+                "Find candidates with strong Power BI experience"
+            )
 
     with q3:
         if st.button("☁️ Azure"):
-            st.session_state.quick_query = \
-                "Find Azure Engineers"
+            button_prompt = (
+                "Find Azure Engineers and rank them"
+            )
 
     with q4:
         if st.button("🤖 AI"):
-            st.session_state.quick_query = \
-                "Find AI Engineers"
+            button_prompt = (
+                "Find AI and Machine Learning Engineers"
+            )
 
     st.divider()
 
+    # Display chat history
     for msg in st.session_state.messages:
 
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    default_prompt = st.session_state.get(
-        "quick_query",
-        ""
-    )
-
-    chat_prompt  = st.chat_input(
+    # Manual user input
+    chat_prompt = st.chat_input(
         "Paste a job description or ask a recruiter question..."
     )
+
+    # Use button click or manual input
     prompt = button_prompt or chat_prompt
+
     if prompt:
+
+        # Show user message immediately
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
         st.session_state.messages.append(
             {
@@ -268,16 +276,15 @@ with tab1:
             }
         )
 
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
         try:
 
-            result = pipeline.answer(
-                prompt,
-                st.session_state.messages,
-                top_k
-            )
+            with st.spinner("🔍 Matching profiles..."):
+
+                result = pipeline.answer(
+                    prompt,
+                    st.session_state.messages,
+                    top_k
+                )
 
             answer = result.text
 
@@ -292,12 +299,19 @@ with tab1:
                     unsafe_allow_html=True
                 )
 
+                if result.hits:
+
+                    st.success(
+                        f"✅ Found {len(result.hits)} matching profile results"
+                    )
+
                 sources = format_sources(result)
 
                 if sources:
 
                     with st.expander(
-                        f"🎯 Matching Details ({len(result.hits)} Results)"
+                        f"🎯 Matching Details ({len(result.hits)} Results)",
+                        expanded=False
                     ):
                         st.markdown(sources)
 
@@ -319,8 +333,6 @@ with tab1:
             st.error(
                 f"Error: {ex}"
             )
-
-
 # ---------------------------------------------------
 # ANALYTICS TAB
 # ---------------------------------------------------
