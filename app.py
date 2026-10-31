@@ -226,7 +226,7 @@ with tab1:
         if st.button("👨‍💻 Data Engineer"):
             # st.session_state.quick_query = \
             #     "Find Data Engineers"
-            prompt = "Find Data Engineers"
+            button_prompt  = "Find Data Engineers"
 
     with q2:
         if st.button("📊 Power BI"):
@@ -255,10 +255,10 @@ with tab1:
         ""
     )
 
-    prompt = st.chat_input(
+    chat_prompt  = st.chat_input(
         "Paste a job description or ask a recruiter question..."
     )
-
+    prompt = button_prompt or chat_prompt
     if prompt:
 
         st.session_state.messages.append(
