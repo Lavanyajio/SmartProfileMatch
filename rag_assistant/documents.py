@@ -35,35 +35,28 @@ def file_hash(path: Path) -> str:
 def load_file(path: Path) -> List[Page]:
     path = Path(path)
     suffix = path.suffix.lower()
+
     if suffix not in SUPPORTED_EXTENSIONS:
-        raise ValueError(f"Unsupported file type: {suffix}. Use PDF, TXT or MD.")
-    # if suffix == ".pdf":
-    #     reader = PdfReader(str(path))
-    #     return [Page(page.extract_text() or "", path.name, i + 1) for i, page in enumerate(reader.pages)]
-    # if suffix == ".pdf":
-    #     reader = PdfReader(str(path))
-    #
-    #     pages = [
-    #         Page(page.extract_text() or "", path.name, i + 1)
-    #         for i, page in enumerate(reader.pages)
-    #     ]
-    #
-    #     if all(not p.text.strip() for p in pages):
-    #         raise ValueError(
-    #             "No readable text detected. PDF may be scanned."
-    #         )
-    #
-    #     return pages
+        raise ValueError(
+            f"Unsupported file type: {suffix}. Use PDF, TXT or MD."
+        )
+
     if suffix == ".pdf":
         reader = PdfReader(str(path))
 
-        print("Pages:", len(reader.pages))
+        pages = []
 
         for i, page in enumerate(reader.pages):
-            text = page.extract_text()
-            print(f"Page {i + 1} chars:", len(text or ""))
+            text = page.extract_text() or ""
 
-        ...
+            print(f"Page {i + 1} chars: {len(text)}")
+
+            pages.append(
+                Page(text, path.name, i + 1)
+            )
+
+        return pages
+
     return [
         Page(
             path.read_text(
