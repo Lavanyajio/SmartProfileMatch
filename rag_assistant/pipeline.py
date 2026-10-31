@@ -489,37 +489,37 @@ Be concise but useful.
 # SOURCE FORMATTER
 # -----------------------------------------------------------
 
-# def format_sources(answer: Answer) -> str:
-#
-#     if not answer.hits:
-#         return ""
-#
-#     lines = [
-#         "# 🎯 Profile Matching Evidence",
-#         "",
-#         f"**Expanded Searches:** {' • '.join(answer.search_queries)}",
-#         ""
-#     ]
-#
-#     for i, hit in enumerate(answer.hits, start=1):
-#
-#         dense = (
-#             f"#{hit.dense_rank}"
-#             if hit.dense_rank
-#             else "-"
-#         )
-#
-#         sparse = (
-#             f"#{hit.sparse_rank}"
-#             if hit.sparse_rank
-#             else "-"
-#         )
-#
-#         snippet = (
-#             hit.chunk.text[:250]
-#             .replace("\n", " ")
-#         )
-#
+def format_sources(answer: Answer) -> str:
+
+    if not answer.hits:
+        return ""
+
+    lines = [
+        "# 🎯 Profile Matching Evidence",
+        "",
+        f"**Expanded Searches:** {' • '.join(answer.search_queries)}",
+        ""
+    ]
+
+    for i, hit in enumerate(answer.hits, start=1):
+
+        dense = (
+            f"#{hit.dense_rank}"
+            if hit.dense_rank
+            else "-"
+        )
+
+        sparse = (
+            f"#{hit.sparse_rank}"
+            if hit.sparse_rank
+            else "-"
+        )
+
+        snippet = (
+            hit.chunk.text[:250]
+            .replace("\n", " ")
+        )
+
 #         lines.append(
 #             f"""
 # ### Candidate Evidence [{i}]
@@ -538,5 +538,5 @@ Be concise but useful.
 #
 # """
 #         )
-#
-#     return "\n".join(lines)
+
+    return "\n".join(lines)
