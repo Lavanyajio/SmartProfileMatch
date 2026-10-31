@@ -7,6 +7,7 @@ from typing import List
 
 from pypdf import PdfReader
 
+
 SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".md"}
 
 
@@ -56,21 +57,36 @@ def load_file(path: Path) -> List[Page]:
     #         )
     #
     #     return pages
+    # if suffix == ".pdf":
+    #     reader = PdfReader(str(path))
+    #
+    #     pages = []
+    #
+    #     for i, page in enumerate(reader.pages):
+    #         text = page.extract_text() or ""
+    #
+    #         print(f"PDF={path.name}")
+    #         print(f"Page={i + 1}")
+    #         print(f"Chars={len(text)}")
+    #
+    #         pages.append(
+    #             Page(text, path.name, i + 1)
+    #         )
+    #
+    #     return pages
     if suffix == ".pdf":
         reader = PdfReader(str(path))
 
         pages = []
 
+        print("FILE:", path.name)
+
         for i, page in enumerate(reader.pages):
             text = page.extract_text() or ""
 
-            print(f"PDF={path.name}")
-            print(f"Page={i + 1}")
-            print(f"Chars={len(text)}")
+            print(f"Page {i + 1}: {len(text)} chars")
 
-            pages.append(
-                Page(text, path.name, i + 1)
-            )
+            pages.append(Page(text, path.name, i + 1))
 
         return pages
     return [
