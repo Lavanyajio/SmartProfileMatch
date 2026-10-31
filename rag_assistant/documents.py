@@ -6,7 +6,8 @@ from pathlib import Path
 from typing import List
 
 from pypdf import PdfReader
-
+from pdf2image import convert_from_path
+import pytesseract
 
 SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".md"}
 
@@ -74,19 +75,71 @@ def load_file(path: Path) -> List[Page]:
     #         )
     #
     #     return pages
+    # if suffix == ".pdf":
+    #     reader = PdfReader(str(path))
+    #
+    #     pages = []
+    #
+    #     print("PYPDF VERSION:", __import__("pypdf").__version__)
+    #     print("FILE:", path.name)
+    #
+    #     for i, page in enumerate(reader.pages):
+    #         text = page.extract_text() or ""
+    #
+    #         print(f"Page {i + 1}: {len(text)} chars")
+    #
+    #         pages.append(Page(text, path.name, i + 1))
+    #
+    #     return pages
     if suffix == ".pdf":
+
         reader = PdfReader(str(path))
 
         pages = []
 
-        print("FILE:", path.name)
+        total_chars = 0
 
+        # First try normal PDF text extraction
         for i, page in enumerate(reader.pages):
             text = page.extract_text() or ""
 
-            print(f"Page {i + 1}: {len(text)} chars")
+            total_chars += len(text)
 
-            pages.append(Page(text, path.name, i + 1))
+            pages.append(
+                Page(
+                    text=text,
+                    source=path.name,
+                    page=i + 1
+                )
+            )
+
+        # OCR fallback for scanned/image PDFs
+        pytesseract.pytesseract.tesseract_cmd = (
+            r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        )
+        if total_chars == 0:
+
+            print(f"OCR fallback triggered for {path.name}")
+
+            images = convert_from_path(str(path))
+
+            pages = []
+
+            for i, image in enumerate(images):
+                ocr_text = pytesseract.image_to_string(image)
+
+                print(
+                    f"OCR Page {i + 1}: "
+                    f"{len(ocr_text)} characters"
+                )
+
+                pages.append(
+                    Page(
+                        text=ocr_text,
+                        source=path.name,
+                        page=i + 1
+                    )
+                )
 
         return pages
     return [

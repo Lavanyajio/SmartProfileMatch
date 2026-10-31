@@ -9,4 +9,7 @@ langchain-groq
 groq
 streamlit
 sentence-transformers>=3.0
+pytesseract
+pdf2image
+Pillow
 
