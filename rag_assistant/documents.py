@@ -40,20 +40,40 @@ def load_file(path: Path) -> List[Page]:
     # if suffix == ".pdf":
     #     reader = PdfReader(str(path))
     #     return [Page(page.extract_text() or "", path.name, i + 1) for i, page in enumerate(reader.pages)]
+    # if suffix == ".pdf":
+    #     reader = PdfReader(str(path))
+    #
+    #     pages = [
+    #         Page(page.extract_text() or "", path.name, i + 1)
+    #         for i, page in enumerate(reader.pages)
+    #     ]
+    #
+    #     if all(not p.text.strip() for p in pages):
+    #         raise ValueError(
+    #             "No readable text detected. PDF may be scanned."
+    #         )
+    #
+    #     return pages
     if suffix == ".pdf":
         reader = PdfReader(str(path))
 
-        pages = [
-            Page(page.extract_text() or "", path.name, i + 1)
-            for i, page in enumerate(reader.pages)
-        ]
+        print("Pages:", len(reader.pages))
 
-        if all(not p.text.strip() for p in pages):
-            raise ValueError(
-                "No readable text detected. PDF may be scanned."
-            )
+        for i, page in enumerate(reader.pages):
+            text = page.extract_text()
+            print(f"Page {i + 1} chars:", len(text or ""))
 
-        return pages
+        ...
+    return [
+        Page(
+            path.read_text(
+                encoding="utf-8",
+                errors="ignore"
+            ),
+            path.name,
+            1
+        )
+    ]
 
 def _clean(text: str) -> str:
     text = text.replace("\x00", " ")
