@@ -12,4 +12,6 @@ sentence-transformers>=3.0
 pytesseract
 pdf2image
 Pillow
+pandas
+plotly
 
