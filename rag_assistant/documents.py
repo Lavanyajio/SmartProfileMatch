@@ -41,6 +41,21 @@ def load_file(path: Path) -> List[Page]:
             f"Unsupported file type: {suffix}. Use PDF, TXT or MD."
         )
 
+    # if suffix == ".pdf":
+    #     reader = PdfReader(str(path))
+    #
+    #     pages = []
+    #
+    #     for i, page in enumerate(reader.pages):
+    #         text = page.extract_text() or ""
+    #
+    #         print(f"Page {i + 1} chars: {len(text)}")
+    #
+    #         pages.append(
+    #             Page(text, path.name, i + 1)
+    #         )
+    #
+    #     return pages
     if suffix == ".pdf":
         reader = PdfReader(str(path))
 
@@ -49,14 +64,15 @@ def load_file(path: Path) -> List[Page]:
         for i, page in enumerate(reader.pages):
             text = page.extract_text() or ""
 
-            print(f"Page {i + 1} chars: {len(text)}")
+            print(f"PDF={path.name}")
+            print(f"Page={i + 1}")
+            print(f"Chars={len(text)}")
 
             pages.append(
                 Page(text, path.name, i + 1)
             )
 
         return pages
-
     return [
         Page(
             path.read_text(
