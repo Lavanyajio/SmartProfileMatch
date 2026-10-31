@@ -1,16 +1,16 @@
-"""
-Smart Profile Matcher
-Run:
-streamlit run streamlit_app.py
-"""
+# ---------------------------------------------------
+# IMPORTS
+# ---------------------------------------------------
 
 import tempfile
 from pathlib import Path
+
 import streamlit as st
 
 from rag_assistant.config import settings
 from rag_assistant.pipeline import RAGPipeline, format_sources
 from rag_assistant.llm import LLMError
+
 
 # ---------------------------------------------------
 # PAGE CONFIG
@@ -22,46 +22,39 @@ st.set_page_config(
     layout="wide"
 )
 
+
 # ---------------------------------------------------
-# CUSTOM CSS
+# STYLING
 # ---------------------------------------------------
 
 st.markdown("""
 <style>
 
-.main {
-    background: #f8fafc;
-}
-
 .hero {
-    padding: 25px;
-    border-radius: 20px;
-    background: linear-gradient(135deg,#2563eb,#7c3aed);
-    color: white;
-    margin-bottom: 20px;
+    padding:35px;
+    border-radius:25px;
+    background:linear-gradient(135deg,#0f172a,#2563eb,#7c3aed);
+    color:white;
+    text-align:center;
+    margin-bottom:20px;
 }
 
-.metric-card {
+.result-card{
     background:white;
     padding:20px;
     border-radius:15px;
-    text-align:center;
-    box-shadow:0 2px 10px rgba(0,0,0,.1);
+    border-left:5px solid #2563eb;
+    box-shadow:0px 2px 8px rgba(0,0,0,0.1);
 }
 
-.stButton button {
+.stButton button{
     width:100%;
     border-radius:10px;
 }
 
-.chat-box {
-    background:#ffffff;
-    padding:15px;
-    border-radius:12px;
-}
-
 </style>
 """, unsafe_allow_html=True)
+
 
 # ---------------------------------------------------
 # SESSION STATE
@@ -75,8 +68,9 @@ if "messages" not in st.session_state:
 
 pipeline = st.session_state.pipeline
 
+
 # ---------------------------------------------------
-# FUNCTIONS
+# HELPERS
 # ---------------------------------------------------
 
 def index_status():
@@ -91,64 +85,25 @@ def index_status():
 
 
 # ---------------------------------------------------
-# HERO SECTION
-# ---------------------------------------------------
-
-st.markdown("""
-<div class="hero">
-<h1>🎯 Smart Profile Matcher</h1>
-
-<h3>AI-Powered Talent Intelligence Platform</h3>
-
-<p>
-Match resumes against job descriptions using semantic search,
-vector embeddings, AI ranking and explainable recommendations.
-</p>
-</div>
-""", unsafe_allow_html=True)
-
-# ---------------------------------------------------
-# KPI CARDS
-# ---------------------------------------------------
-
-c1, c2, c3 = st.columns(3)
-
-with c1:
-    st.metric(
-        "⚡ AI Matching",
-        "Semantic Ranking"
-    )
-
-with c2:
-    st.metric(
-        "📊 Skill Analysis",
-        "Gap Detection"
-    )
-
-with c3:
-    st.metric(
-        "🎯 Resume Screening",
-        "Instant Insights"
-    )
-
-st.divider()
-
-# ---------------------------------------------------
 # SIDEBAR
 # ---------------------------------------------------
 
 with st.sidebar:
 
-    st.header("📄 Resume Management")
+    st.title("🎯 Recruiter Dashboard")
+
+    st.success(index_status())
+
+    st.divider()
 
     uploaded_files = st.file_uploader(
-        "Upload Candidate Resumes",
+        "Upload Candidate Profiles",
         type=["pdf", "txt", "md"],
         accept_multiple_files=True
     )
 
     top_k = st.slider(
-        "🎯 Top Matching Profiles",
+        "Top Matches",
         2,
         10,
         settings.top_k
@@ -179,122 +134,266 @@ with st.sidebar:
     if st.button("🗑️ Clear Index"):
 
         pipeline.reset()
-        st.success("Index cleared successfully.")
+        st.success("Index cleared")
 
-    st.markdown("---")
-
-    st.subheader("📊 Status")
-    st.info(index_status())
-
-# ---------------------------------------------------
-# CAPABILITIES
-# ---------------------------------------------------
-
-with st.expander(
-        "📊 Matching Capabilities",
-        expanded=False):
+    st.divider()
 
     st.markdown("""
-✅ Resume Parsing
+### 🚀 Quick Tips
 
-✅ Skill Extraction
+• Find Data Engineers
 
-✅ Job Description Analysis
+• Find Azure Engineers
 
-✅ Semantic Candidate Ranking
+• Compare Power BI Candidates
 
-✅ Experience Matching
+• Search AWS Skills
 
-✅ Skill Gap Identification
-
-✅ Explainable AI Recommendations
-
-✅ Candidate Comparison
+• Rank AI Candidates
 """)
 
-# ---------------------------------------------------
-# SAMPLE QUESTIONS
-# ---------------------------------------------------
-
-st.subheader("💡 Recruiter Queries")
-
-samples = [
-    "Find candidates suitable for Senior Data Engineer.",
-    "Rank candidates for Machine Learning Engineer.",
-    "Compare Azure skills across profiles.",
-    "Who is strongest in Power BI?",
-    "Identify missing skills for this role."
-]
-
-for s in samples:
-    st.write("•", s)
-
-st.divider()
 
 # ---------------------------------------------------
-# CHAT HISTORY
+# HERO
 # ---------------------------------------------------
 
-for msg in st.session_state.messages:
+st.markdown("""
+<div class="hero">
 
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+<h1>🎯 Smart Profile Matcher</h1>
+
+<h4>AI-Powered Talent Intelligence Platform</h4>
+
+<p>
+Upload resumes • Match talent • Rank candidates • Generate recruiter insights
+</p>
+
+</div>
+""", unsafe_allow_html=True)
+
 
 # ---------------------------------------------------
-# CHAT INPUT
+# KPIs
 # ---------------------------------------------------
 
-prompt = st.chat_input(
-    "Paste a job description or ask about candidate skills..."
+total_profiles = (
+    len(pipeline.index.sources)
+    if hasattr(pipeline.index, "sources")
+    else 0
 )
 
-if prompt:
+total_chunks = len(pipeline.index)
 
-    st.session_state.messages.append(
-        {
-            "role": "user",
-            "content": prompt
-        }
+c1, c2, c3, c4 = st.columns(4)
+
+with c1:
+    st.metric("📄 Profiles", total_profiles)
+
+with c2:
+    st.metric("🧠 Chunks", total_chunks)
+
+with c3:
+    st.metric("🎯 Top Results", top_k)
+
+with c4:
+    st.metric("🤖 AI Status", "Online")
+
+
+# ---------------------------------------------------
+# TABS
+# ---------------------------------------------------
+
+tab1, tab2, tab3 = st.tabs(
+    [
+        "🔍 Candidate Search",
+        "📊 Analytics",
+        "⚙️ Platform"
+    ]
+)
+
+
+# ---------------------------------------------------
+# SEARCH TAB
+# ---------------------------------------------------
+
+with tab1:
+
+    st.subheader("💡 Popular Recruiter Searches")
+
+    q1, q2, q3, q4 = st.columns(4)
+
+    with q1:
+        if st.button("👨‍💻 Data Engineer"):
+            st.session_state.quick_query = \
+                "Find Data Engineers"
+
+    with q2:
+        if st.button("📊 Power BI"):
+            st.session_state.quick_query = \
+                "Find Power BI Developers"
+
+    with q3:
+        if st.button("☁️ Azure"):
+            st.session_state.quick_query = \
+                "Find Azure Engineers"
+
+    with q4:
+        if st.button("🤖 AI"):
+            st.session_state.quick_query = \
+                "Find AI Engineers"
+
+    st.divider()
+
+    for msg in st.session_state.messages:
+
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    default_prompt = st.session_state.get(
+        "quick_query",
+        ""
     )
 
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    prompt = st.chat_input(
+        "Paste a job description or ask a recruiter question..."
+    )
 
-    try:
-
-        result = pipeline.answer(
-            prompt,
-            st.session_state.messages,
-            top_k
-        )
-
-        answer = result.text
-
-        with st.chat_message("assistant"):
-            st.markdown(answer)
-
-            sources = format_sources(result)
-
-            if sources:
-                with st.expander(
-                    f"🎯 Matching Details ({len(result.hits)} Results)"
-                ):
-                    st.markdown(sources)
+    if prompt:
 
         st.session_state.messages.append(
             {
-                "role": "assistant",
-                "content": answer
+                "role": "user",
+                "content": prompt
             }
         )
 
-    except LLMError as ex:
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-        st.error(f"LLM Error: {ex}")
+        try:
 
-    except Exception as ex:
+            result = pipeline.answer(
+                prompt,
+                st.session_state.messages,
+                top_k
+            )
 
-        st.error(f"Error: {ex}")
+            answer = result.text
+
+            with st.chat_message("assistant"):
+
+                st.markdown(
+                    f"""
+                    <div class="result-card">
+                    {answer}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                sources = format_sources(result)
+
+                if sources:
+
+                    with st.expander(
+                        f"🎯 Matching Details ({len(result.hits)} Results)"
+                    ):
+                        st.markdown(sources)
+
+            st.session_state.messages.append(
+                {
+                    "role": "assistant",
+                    "content": answer
+                }
+            )
+
+        except LLMError as ex:
+
+            st.error(
+                f"LLM Error: {ex}"
+            )
+
+        except Exception as ex:
+
+            st.error(
+                f"Error: {ex}"
+            )
+
+
+# ---------------------------------------------------
+# ANALYTICS TAB
+# ---------------------------------------------------
+
+with tab2:
+
+    st.subheader("📊 Talent Analytics")
+
+    a1, a2, a3 = st.columns(3)
+
+    with a1:
+        st.success(
+            f"Profiles Indexed: {total_profiles}"
+        )
+
+    with a2:
+        st.info(
+            f"Profile Chunks: {total_chunks}"
+        )
+
+    with a3:
+        st.warning(
+            f"Top K Results: {top_k}"
+        )
+
+    st.divider()
+
+    st.info("""
+Upcoming Features:
+
+• Skill Distribution Dashboard
+
+• Candidate Leaderboard
+
+• Hiring Funnel Analytics
+
+• Experience Analytics
+
+• Department Insights
+""")
+
+
+# ---------------------------------------------------
+# PLATFORM TAB
+# ---------------------------------------------------
+
+with tab3:
+
+    st.subheader(
+        "🚀 Smart Profile Matcher"
+    )
+
+    st.markdown("""
+### Platform Features
+
+✅ Resume Parsing
+
+✅ OCR Resume Processing
+
+✅ Semantic Search
+
+✅ Hybrid RAG Retrieval
+
+✅ Skill Matching
+
+✅ Experience Analysis
+
+✅ Candidate Ranking
+
+✅ Recruiter Recommendations
+
+✅ Explainable AI
+""")
+
 
 # ---------------------------------------------------
 # FOOTER
@@ -303,13 +402,18 @@ if prompt:
 st.divider()
 
 st.markdown("""
-<center>
+<div style="
+padding:25px;
+border-radius:15px;
+background:linear-gradient(90deg,#0f172a,#2563eb);
+color:white;
+text-align:center">
 
-### Smart Profile Matcher
+<h3>🎯 Smart Profile Matcher</h3>
 
-AI-Powered Resume Intelligence Platform
+<p>
+AI Resume Intelligence • Talent Analytics • Semantic Candidate Search
+</p>
 
-Built with FAISS • BM25 • Hugging Face • Groq • Streamlit
-
-</center>
+</div>
 """, unsafe_allow_html=True)
