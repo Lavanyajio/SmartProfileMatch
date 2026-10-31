@@ -56,6 +56,70 @@ smart-profile-matcher/
 │   └── secrets.toml
 └── README.md
 ```
+```text
+rag_assistant/
+│
+├── __init__.py
+├── config.py
+├── documents.py
+├── embeddings.py
+├── hybrid_index.py
+├── llm.py
+├── pipeline.py
+│
+storage/
+│
+├── index/
+│
+tests/
+├── conftest.py
+├── test_app.py
+├── test_rag.py
+
+└── README.md
+```
+## Presentation Architecture
+
+Presentation Layer
+│
+├── Streamlit UI
+├── Recruiter Dashboard
+├── Resume Upload
+└── Candidate Search
+
+↓
+
+Application Layer
+│
+├── RAGPipeline
+├── Query Expansion
+├── Candidate Ranking
+└── Response Generation
+
+↓
+
+Retrieval Layer
+│
+├── FAISS Vector Search
+├── BM25 Keyword Search
+└── RRF Fusion
+
+↓
+
+AI Layer
+│
+├── Embeddings Model
+├── Groq LLM
+└── Semantic Matching
+
+↓
+
+Data Layer
+│
+├── Resume PDFs
+├── OCR Extracted Text
+├── Resume Chunks
+└── Search Index
 
 ## ⚙️ Installation
 

@@ -446,7 +446,7 @@ Provide:
 3. Ranked candidates
 4. Matching skills
 5. Relevant experience
-6. Evidence references
+6. Evidence references  
 7. Recruiter recommendation
 
 Be concise but useful.
@@ -489,54 +489,54 @@ Be concise but useful.
 # SOURCE FORMATTER
 # -----------------------------------------------------------
 
-def format_sources(answer: Answer) -> str:
-
-    if not answer.hits:
-        return ""
-
-    lines = [
-        "# 🎯 Profile Matching Evidence",
-        "",
-        f"**Expanded Searches:** {' • '.join(answer.search_queries)}",
-        ""
-    ]
-
-    for i, hit in enumerate(answer.hits, start=1):
-
-        dense = (
-            f"#{hit.dense_rank}"
-            if hit.dense_rank
-            else "-"
-        )
-
-        sparse = (
-            f"#{hit.sparse_rank}"
-            if hit.sparse_rank
-            else "-"
-        )
-
-        snippet = (
-            hit.chunk.text[:250]
-            .replace("\n", " ")
-        )
-
-        lines.append(
-            f"""
-### Candidate Evidence [{i}]
-
-📄 Resume: {hit.chunk.source}
-
-📑 Page: {hit.chunk.page}
-
-🔍 Semantic Rank: {dense}
-
-🔤 Keyword Rank: {sparse}
-
-⭐ Match Score: {hit.score:.4f}
-
-> {snippet}...
-
-"""
-        )
-
-    return "\n".join(lines)
+# def format_sources(answer: Answer) -> str:
+#
+#     if not answer.hits:
+#         return ""
+#
+#     lines = [
+#         "# 🎯 Profile Matching Evidence",
+#         "",
+#         f"**Expanded Searches:** {' • '.join(answer.search_queries)}",
+#         ""
+#     ]
+#
+#     for i, hit in enumerate(answer.hits, start=1):
+#
+#         dense = (
+#             f"#{hit.dense_rank}"
+#             if hit.dense_rank
+#             else "-"
+#         )
+#
+#         sparse = (
+#             f"#{hit.sparse_rank}"
+#             if hit.sparse_rank
+#             else "-"
+#         )
+#
+#         snippet = (
+#             hit.chunk.text[:250]
+#             .replace("\n", " ")
+#         )
+#
+#         lines.append(
+#             f"""
+# ### Candidate Evidence [{i}]
+#
+# 📄 Resume: {hit.chunk.source}
+#
+# 📑 Page: {hit.chunk.page}
+#
+# 🔍 Semantic Rank: {dense}
+#
+# 🔤 Keyword Rank: {sparse}
+#
+# ⭐ Match Score: {hit.score:.4f}
+#
+# > {snippet}...
+#
+# """
+#         )
+#
+#     return "\n".join(lines)
