@@ -224,8 +224,9 @@ with tab1:
 
     with q1:
         if st.button("👨‍💻 Data Engineer"):
-            st.session_state.quick_query = \
-                "Find Data Engineers"
+            # st.session_state.quick_query = \
+            #     "Find Data Engineers"
+            prompt = "Find Data Engineers"
 
     with q2:
         if st.button("📊 Power BI"):
