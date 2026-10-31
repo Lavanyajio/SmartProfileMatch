@@ -34,8 +34,16 @@ def file_hash(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()[:16]
 
 
-def load_file(path: Path) -> List[Page]:
+def load_file(
+    path: Path,
+    source_name: str = None,
+) -> List[Page]:
+
     path = Path(path)
+
+    if source_name is None:
+        source_name = path.name
+
     suffix = path.suffix.lower()
 
     if suffix not in SUPPORTED_EXTENSIONS:
@@ -43,64 +51,17 @@ def load_file(path: Path) -> List[Page]:
             f"Unsupported file type: {suffix}. Use PDF, TXT or MD."
         )
 
-    # if suffix == ".pdf":
-    #     reader = PdfReader(str(path))
-    #
-    #     pages = []
-    #
-    #     for i, page in enumerate(reader.pages):
-    #         text = page.extract_text() or ""
-    #
-    #         print(f"Page {i + 1} chars: {len(text)}")
-    #
-    #         pages.append(
-    #             Page(text, path.name, i + 1)
-    #         )
-    #
-    #     return pages
-    # if suffix == ".pdf":
-    #     reader = PdfReader(str(path))
-    #
-    #     pages = []
-    #
-    #     for i, page in enumerate(reader.pages):
-    #         text = page.extract_text() or ""
-    #
-    #         print(f"PDF={path.name}")
-    #         print(f"Page={i + 1}")
-    #         print(f"Chars={len(text)}")
-    #
-    #         pages.append(
-    #             Page(text, path.name, i + 1)
-    #         )
-    #
-    #     return pages
-    # if suffix == ".pdf":
-    #     reader = PdfReader(str(path))
-    #
-    #     pages = []
-    #
-    #     print("PYPDF VERSION:", __import__("pypdf").__version__)
-    #     print("FILE:", path.name)
-    #
-    #     for i, page in enumerate(reader.pages):
-    #         text = page.extract_text() or ""
-    #
-    #         print(f"Page {i + 1}: {len(text)} chars")
-    #
-    #         pages.append(Page(text, path.name, i + 1))
-    #
-    #     return pages
+    # PDF Processing
     if suffix == ".pdf":
 
         reader = PdfReader(str(path))
 
         pages = []
-
         total_chars = 0
 
-        # First try normal PDF text extraction
+        # Standard text extraction
         for i, page in enumerate(reader.pages):
+
             text = page.extract_text() or ""
 
             total_chars += len(text)
@@ -108,24 +69,22 @@ def load_file(path: Path) -> List[Page]:
             pages.append(
                 Page(
                     text=text,
-                    source=path.name,
-                    page=i + 1
+                    source=source_name,
+                    page=i + 1,
                 )
             )
 
-        # OCR fallback for scanned/image PDFs
-        # pytesseract.pytesseract.tesseract_cmd = (
-        #     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-        # )
+        # OCR fallback
         if total_chars == 0:
 
-            print(f"OCR fallback triggered for {path.name}")
+            print(f"OCR fallback triggered for {source_name}")
 
             images = convert_from_path(str(path))
 
             pages = []
 
             for i, image in enumerate(images):
+
                 ocr_text = pytesseract.image_to_string(image)
 
                 print(
@@ -136,23 +95,24 @@ def load_file(path: Path) -> List[Page]:
                 pages.append(
                     Page(
                         text=ocr_text,
-                        source=path.name,
-                        page=i + 1
+                        source=source_name,
+                        page=i + 1,
                     )
                 )
 
         return pages
+
+    # TXT / MD files
     return [
         Page(
-            path.read_text(
+            text=path.read_text(
                 encoding="utf-8",
                 errors="ignore"
             ),
-            path.name,
-            1
+            source=source_name,
+            page=1,
         )
     ]
-
 def _clean(text: str) -> str:
     text = text.replace("\x00", " ")
     text = re.sub(r"[ \t]+", " ", text)

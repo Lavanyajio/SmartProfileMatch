@@ -113,24 +113,25 @@ with st.sidebar:
 
         if uploaded_files:
 
-            paths = []
+            files = []
 
             for file in uploaded_files:
-
-                suffix = Path(file.name).suffix
-
                 with tempfile.NamedTemporaryFile(
-                    delete=False,
-                    suffix=suffix
+                        delete=False,
+                        suffix=Path(file.name).suffix
                 ) as tmp:
-
                     tmp.write(file.read())
-                    paths.append(Path(tmp.name))
 
-            result = pipeline.ingest(paths)
+                    files.append(
+                        {
+                            "path": Path(tmp.name),
+                            "source_name": file.name
+                        }
+                    )
+
+            result = pipeline.ingest(files)
 
             st.success(result)
-
     if st.button("🗑️ Clear Index"):
 
         pipeline.reset()

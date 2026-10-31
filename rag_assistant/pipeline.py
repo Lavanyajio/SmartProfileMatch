@@ -215,13 +215,14 @@ class RAGPipeline:
     # INGEST
     # -------------------------------------------------------
 
-    def ingest(self, paths: List[Path]) -> str:
+    def ingest(self, files) -> str:
 
         report = []
 
-        for path in paths:
+        for item in files:
 
-            path = Path(path)
+            path = Path(item["path"])
+            source_name = item["source_name"]
 
             try:
 
@@ -229,21 +230,14 @@ class RAGPipeline:
 
                 if self.index.has_file(digest):
                     report.append(
-                        f"⏭️ {path.name}: already indexed"
+                        f"⏭️ {source_name}: already indexed"
                     )
                     continue
 
-                chunks = chunk_pages(
-                    load_file(path),
-                    self.cfg.chunk_size,
-                    self.cfg.chunk_overlap
+                pages = load_file(
+                    path,
+                    source_name=source_name
                 )
-
-                # if not chunks:
-                #     report.append(
-                #         f"⚠️ {path.name}: no readable text detected"
-                #     )
-                pages = load_file(path)
 
                 chunks = chunk_pages(
                     pages,
@@ -253,10 +247,8 @@ class RAGPipeline:
 
                 if not any(page.text.strip() for page in pages):
                     report.append(
-                        f"⚠️ {path.name}: no readable text detected (possibly scanned PDF)"
+                        f"⚠️ {source_name}: no readable text detected (possibly scanned PDF)"
                     )
-                    continue
-
                     continue
 
                 vectors = self.embedder.embed(
@@ -267,11 +259,11 @@ class RAGPipeline:
                     chunks,
                     vectors,
                     digest,
-                    path.name
+                    source_name
                 )
 
                 report.append(
-                    f"✅ {path.name}: {len(chunks)} profile chunks"
+                    f"✅ {source_name}: {len(chunks)} profile chunks"
                 )
 
             except Exception as exc:
@@ -282,7 +274,7 @@ class RAGPipeline:
                 )
 
                 report.append(
-                    f"❌ {path.name}: {exc}"
+                    f"❌ {source_name}: {exc}"
                 )
 
         self.index.save(self.cfg.index_dir)
