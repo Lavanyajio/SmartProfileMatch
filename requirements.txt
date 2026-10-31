@@ -3,13 +3,10 @@ huggingface_hub>=0.28,<2.0
 python-dotenv>=1.0
 numpy>=1.26
 faiss-cpu>=1.8
-rank-bm25>=0.2.2
+rank-bm25==0.2.2
 pypdf==6.1.4
 langchain-groq
 groq
 streamlit
-# Optional, only for EMBEDDING_BACKEND=local:
 sentence-transformers>=3.0
-pytesseract
-pdf2image
-Pillow
+
